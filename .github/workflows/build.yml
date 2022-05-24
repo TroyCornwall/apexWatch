@@ -1,0 +1,41 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: vendor
+      run: go mod vendor
+      
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD  
+      
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile --tag troycornwall/apexwatch:latest
+        docker tag troycornwall/apexwatch:latest troycornwall/apexwatch:$GITHUB_RUN_ID
+        
+    - name: Push Docker images
+      run: |
+        docker push troycornwall/apexwatch:$GITHUB_RUN_ID
+        docker push troycornwall/apexwatch:latest      
+      
+      
