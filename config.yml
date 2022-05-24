@@ -1,0 +1,8 @@
+timezone: "NZ"
+limits:
+  temp:
+    high: 26
+    low: 24
+  ph:
+    high: 8.3
+    low: 7.8
